@@ -1,0 +1,7 @@
+source: TEST
+user_name: shkabuthahir@gmail.com
+password: nadxyhojstpvhang
+smpt:
+  host: smtp.googlemail.com
+  port: 587
+to: aanwar.1470@gmail.com
