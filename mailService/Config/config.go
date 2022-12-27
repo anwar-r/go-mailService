@@ -7,15 +7,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var config model.SmtpAuth
+var Config []model.SmtpAuth
 
 func Init() {
 	data, err := ioutil.ReadFile("./Config/auth.yml")
 	if err != nil {
 		err.Error()
 	}
-
-	err = yaml.Unmarshal(data, &config)
+	// var src model.SmtpAuth
+	err = yaml.Unmarshal(data, &Config)
 	if err != nil {
 		err.Error()
 	}

@@ -2,12 +2,10 @@ package controller
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	config "mailService/Config"
 	model "mailService/Model"
 	"net/http"
 	"net/smtp"
-
-	"gopkg.in/yaml.v2"
 )
 
 func Mail(w http.ResponseWriter, r *http.Request) {
@@ -21,61 +19,30 @@ func Mail(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resp.Status = err.Error()
 	}
-
-	if mail.Source == "TEST" {
-		log, err := parserYmal("TEST")
-		if err != nil {
-			resp.Status = err.Error()
-
+	for _, src := range config.Config {
+		if mail.Source == src.Source {
+			resp = mailSend(src, mail)
 		}
-		resp = mailSend(log, mail)
-
-	} else {
-		resp.Status = "error"
-		resp.Message = "Send Valid Source "
 	}
 
 	json.NewEncoder(w).Encode(resp)
 }
 
-func parserYmal(source string) (model.SmtpAuth, error) {
-	var log model.SmtpAuth
-
-	data, err := ioutil.ReadFile("./Config/auth.yml")
-	if err != nil {
-		err.Error()
-	}
-	switch source {
-	case "TEST":
-		{
-			err = yaml.Unmarshal(data, &log)
-			if err != nil {
-				err.Error()
-			}
-		}
-	}
-
-	return log, err
-}
-
-func mailSend(log model.SmtpAuth, mail model.MailRequest) (result model.JsonResponse) {
+func mailSend(log model.SmtpAuth, mailreq model.MailRequest) (result model.JsonResponse) {
 	var resp = model.JsonResponse{}
-
 	auth := smtp.PlainAuth("", log.UserName, log.Password, log.Smpt.Host)
-
-	// Connect to the server, authenticate, set the sender and recipient,
-	// and send the email all in one step.
-
-	to := []string{log.To}
-	msg := []byte("Subject: WebSite Email!\r\n" +
+	addr := log.Smpt.Host + ":" + log.Smpt.Port
+	to := []string{mailreq.To}
+	msg := []byte("Subject:" + mailreq.Subject + "\r\n" +
 		"\r\n" +
-		mail.Message)
-	err := smtp.SendMail(log.Smpt.Host+":"+log.Smpt.Port, auth, log.UserName, to, msg)
+		mailreq.Body)
+
+	err := smtp.SendMail(addr, auth, mailreq.From, to, msg)
 	if err != nil {
 		resp.Status = err.Error()
 
 	} else {
-		resp.Status = mail.Source + " " + "Mail Send Successfully"
+		resp.Status = mailreq.Source + " " + "Mail Send Successfully"
 	}
 	return resp
 }
