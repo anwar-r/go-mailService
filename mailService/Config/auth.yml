@@ -1,12 +1,12 @@
 - source: TEST
-  user_name: shkabuthahir@gmail.com
+  user_name: example@gmail.com
   password: nadxyhojstpvhang
   smpt:
     host: smtp.googlemail.com
     port: 587
 
-- source: SHASTI-OUTSOURCING
-  user_name: shkabuthahir@gmail.com
+- source: SAMPLE
+  user_name: example@gmail.com
   password: nadxyhojstpvhang
   smpt:
     host: smtp.googlemail.com
